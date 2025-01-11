@@ -1,0 +1,12 @@
+python-dotenv
+langchain~=0.3.12
+langgraph~=0.2.60
+flask~=3.0.3
+esdk-obs-python
+transformers==4.47.1
+language_tool_python==2.8.1
+langchain_core==0.3.29
+langchain_community==0.3.14
+torch==2.5.1
+torchaudio==2.5.1
+torchvision==0.20.1
