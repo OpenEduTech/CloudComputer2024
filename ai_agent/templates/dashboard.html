@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能老师助手</title>
+    <style>
+        .mcd-menu li.selected {
+            background-color: #e65c00;
+            color: white;
+        }
+
+        /* 当点击 AI 教学助手时，显示的提示信息样式 */
+        #placeholder-message {
+            font-size: 2em; /* 字体加大 */
+            color: #888;
+            padding: 2em;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        nav {
+            width: 20%;
+            background-color: #000000; /* 左侧栏背景颜色为黑色 */
+            color: white;
+            overflow-y: auto;
+            position: relative; /* 保证按钮可以在底部绝对定位 */
+        }
+
+        .mcd-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mcd-menu li {
+            padding: 1em;
+            cursor: pointer;
+            border-bottom: 1px solid #444;
+            transition: background-color 0.3s, font-size 0.3s;
+        }
+
+        .mcd-menu li:hover {
+            background-color: #e65c00;
+        }
+
+        .mcd-menu li.selected {
+            background-color: #DFDBD9;
+            color: #e65c00;
+        }
+
+        #ai-assistant {
+            font-size: 1.5em; /* 字体变大 */
+        }
+
+        #main-content {
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            background-color: #003366; /* 右侧对话区为藏青色 */
+            justify-content: flex-start; /* 更符合顶部对齐 */
+            align-items: stretch; /* 使容器填满整个空间 */
+            color: white; /* 字体颜色改为白色 */
+        }
+
+        .chat-history {
+            flex: 1;
+            padding: 1em;
+            overflow-y: auto;
+            background-color: #001f33; /* 深藏青色背景 */
+            text-align: left; /* 左对齐 */
+            border-bottom: 1px solid #ccc; /* 给聊天区域增加下边框 */
+        }
+
+        .chat-history div {
+            margin-bottom: 1em;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 1em;
+            background-color: #001f33; /* 深藏青色背景 */
+            border-top: 1px solid #ccc;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 0.5em;
+            margin-right: 0.5em;
+            border-radius: 4px;  /* 增加圆角 */
+            border: 1px solid #ccc;  /* 输入框边框 */
+        }
+
+        button {
+            padding: 0.5em 1em;
+            background-color: #FF6600; /* 按钮为橘色 */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #e65c00; /* 按钮悬停效果 */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #placeholder-message {
+            font-size: 1.2em;
+            color: #888;
+            padding: 2em;
+        }
+
+        /* 适应不同屏幕的布局 */
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            nav {
+                width: 100%;
+                height: auto;
+            }
+
+            #main-content {
+                width: 100%;
+            }
+        }
+
+        /* 将按钮容器定位到左侧栏底部 */
+        .button-container {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            padding: 0 1em;
+            box-sizing: border-box;
+        }
+
+        .button-container button {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <ul class="mcd-menu">
+                <li id="ai-assistant" class="menu-item">TeachLink</li>
+                <li id="chinese-teacher" class="menu-item">语文老师</li>
+                <li id="math-teacher" class="menu-item">数学老师</li>
+                <li id="english-teacher" class="menu-item">英语老师</li>
+                <li id="learning-suggestion" class="menu-item">学习建议</li> <!-- 新增学习建议按钮 -->
+                <li id="logout" class="menu-item">登出</li>
+            </ul>
+            <!-- 将按钮放到左侧栏的底部 -->
+            <div class="button-container">
+                <button id="save-conversation-button">保存对话</button>
+                <button id="load-conversation-button">加载对话</button>
+                <button id="clear-conversation-button">清除对话</button>
+                <button id="delete-conversation-btn">删除历史对话</button>
+            </div>
+        </nav>
+        <div id="main-content">
+            <div id="chat-history" class="chat-history">
+                <div id="placeholder-message">请在左侧栏中选择您的智能老师。</div>
+            </div>
+            <div class="input-container hidden" id="input-container">
+                <input type="text" id="user-input" placeholder="请输入您的问题">
+                <button id="submit-button">提交</button>
+            </div>
+            <div id="response"></div>
+        </div>
+    </div>    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const teacherMapping = {
+                "math-teacher": "1",
+                "chinese-teacher": "2",
+                "english-teacher": "3",
+                "learning-suggestion": "4",
+            };
+          
+            const queryInput = document.getElementById("user-input");
+            const responseDiv = document.getElementById("response");
+            const submitButton = document.getElementById("submit-button");
+            const inputContainer = document.getElementById("input-container");
+            const chatHistory = document.getElementById("chat-history");
+            const placeholderMessage = document.getElementById("placeholder-message");
+            const saveButton = document.getElementById("save-conversation-button");
+            const loadButton = document.getElementById("load-conversation-button");
+            const logoutButton = document.getElementById("logout");
+            const menuItems = document.querySelectorAll(".menu-item");
+          
+            const chatRecords = {
+                "1": [], // 数学老师
+                "2": [], // 语文老师
+                "3": [], // 英语老师
+                "4": [], // 学习建议
+            };
+          
+            let currentTeacher = "2"; // 默认语文老师编号
+            let userId = '{{ username }}'; // 动态注入用户名作为用户ID
+
+            // 保存对话到后端
+            function saveConversation(conversation) {
+                fetch('/save_conversation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ conversation: conversation }) 
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('对话已保存！');
+                    } else {
+                        alert('保存失败: ' + (data.error || '未知错误'));
+                    }
+                })
+                .catch(error => console.error("保存对话时出错:", error));
+            }
+
+            // 加载历史对话
+            function loadConversation() {
+                fetch('/load_conversation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId: userId }) 
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.conversation) {
+                        const conversationLines = data.conversation.split("\n");
+                        conversationLines.forEach(line => {
+                            chatRecords[currentTeacher].push(line);
+                        });
+                        renderChatHistory();
+                    } else {
+                        alert('未找到历史对话。');
+                    }
+                })
+                .catch((error) => {
+                    alert('加载对话时出错，请稍后重试。');
+                });
+            }
+            
+            // 清空聊天记录
+            function clearChatHistory() {
+                chatHistory.innerHTML = "";
+                chatRecords[currentTeacher] = [];
+                if (!chatHistory.contains(placeholderMessage)) {
+                    chatHistory.appendChild(placeholderMessage);
+                }
+            }
+            
+            // 登出功能
+            logoutButton.addEventListener("click", () => {
+                fetch('/logout', { method: 'GET' })
+                    .then(() => {
+                        window.location.href = '/';
+                    });
+            });
+
+            // 显示或隐藏输入框
+            function toggleInputVisibility() {
+                if (currentTeacher) {
+                    inputContainer.classList.remove("hidden");
+                } else {
+                    inputContainer.classList.add("hidden");
+                }
+            }
+          
+            // 渲染聊天记录
+            function renderChatHistory() {
+                chatHistory.innerHTML = "";
+                const currentMessages = chatRecords[currentTeacher] || [];
+                currentMessages.forEach((message) => {
+                    const messageDiv = document.createElement("div");
+                    messageDiv.textContent = message;
+                    chatHistory.appendChild(messageDiv);
+                });
+          
+                if (chatHistory.contains(placeholderMessage)) {
+                    chatHistory.removeChild(placeholderMessage);
+                }
+            }
+          
+            // 提交表单时处理
+            submitButton.addEventListener("click", function () {
+                const query = queryInput.value.trim();
+                if (!query) return;
+                fetch("/get_response", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: `query=${encodeURIComponent(query)}&app_choice=${encodeURIComponent(currentTeacher)}`,
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    chatRecords[currentTeacher].push(`${userId}: ${query}`);
+                    chatRecords[currentTeacher].push(`智能老师: ${data.response}`);
+                    renderChatHistory();
+                    queryInput.value = ""; // 清空输入框
+                })
+                .catch((error) => {
+                    console.error("请求出错:", error);
+                    alert("请求出错，请稍后重试。");
+                });
+            });
+
+            // 保存和加载对话按钮
+            saveButton.addEventListener('click', function() {
+                const conversation = chatRecords[currentTeacher].join('\n');  // 将对话拼接成一个字符串
+                saveConversation(conversation);
+            });
+
+            loadButton.addEventListener('click', loadConversation);
+
+            // 清除对话按钮
+            document.getElementById("clear-conversation-button").addEventListener("click", clearChatHistory); // 绑定清除对话按钮事件
+            document.getElementById('delete-conversation-btn').addEventListener('click', function() {
+                        fetch('/delete_conversation', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                alert('历史对话已成功删除！');
+                            } else {
+                                alert('删除历史对话失败：' + data.error);
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    });
+
+            // 新增学习建议按钮事件处理
+            document.getElementById("learning-suggestion").addEventListener("click", () => {
+                const teacherId = teacherMapping["learning-suggestion"];
+                if (teacherId) {
+                    currentTeacher = teacherId;
+                    menuItems.forEach(item => item.classList.remove('selected'));
+                    document.getElementById("learning-suggestion").classList.add('selected');
+                    toggleInputVisibility();
+                    clearChatHistory();
+                    renderChatHistory();
+                    fetchLearningSuggestion();
+                }
+            });
+
+
+            // 新增获取学习建议的函数
+            function fetchLearningSuggestion() {
+                fetch('/get_learning_suggestion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId: userId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.suggestion) {
+                        chatRecords[currentTeacher].push(`学习建议: ${data.suggestion}`);
+                        renderChatHistory();
+                    } else {
+                        alert('获取学习建议失败: ' + (data.error || '未知错误'));
+                    }
+                })
+                .catch(error => {
+                    console.error("获取学习建议时出错:", error);
+                    alert('获取学习建议时出错，请稍后重试。');
+                });
+            }
+
+            // 切换老师时更新内容
+            menuItems.forEach(menuItem => {
+                menuItem.addEventListener("click", () => {
+                    const teacherId = teacherMapping[menuItem.id];
+                    if (teacherId) {
+                        currentTeacher = teacherId;
+                        menuItems.forEach(item => item.classList.remove('selected'));
+                        menuItem.classList.add('selected');
+                        toggleInputVisibility();
+                        clearChatHistory();  // 清空聊天记录
+                        renderChatHistory();  // 切换教师时更新聊天记录
+                    }
+                });
+            });
+            renderChatHistory();
+            // 初始化渲染
+            loadConversation();
+        });          
+    </script>
+</body>
+</html>
