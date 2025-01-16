@@ -1,0 +1,44 @@
+{
+  "name": "langchain_project",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "backend": "nodemon src/backend/server.cjs",
+    "initialize": "node src/backend/scripts/initialize.cjs"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@langchain/cohere": "^0.3.1",
+    "@langchain/core": "^0.3.26",
+    "@langchain/openai": "^0.3.16",
+    "@tsconfig/node22": "^22.0.0",
+    "@types/axios": "^0.9.36",
+    "@types/node": "^22.10.2",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
+    "autoprefixer": "^10.4.20",
+    "axios": "^1.7.9",
+    "chromedriver": "^131.0.4",
+    "cli-progress": "^3.12.0",
+    "cohere-ai": "^7.15.0",
+    "concurrently": "^9.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "langchain": "^0.3.7",
+    "mysql2": "^3.11.5",
+    "nodemon": "^3.1.9",
+    "npm-run-all2": "^7.0.1",
+    "postcss": "^8.4.49",
+    "selenium-webdriver": "^4.27.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.6.3",
+    "urllib": "^4.6.11",
+    "uuid": "^11.0.3",
+    "vfonts": "^0.0.3",
+    "vite": "^6.0.1",
+    "vue-tsc": "^2.1.10"
+  }
+}

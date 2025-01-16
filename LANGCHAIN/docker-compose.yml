@@ -1,0 +1,97 @@
+services:
+  pd01:
+    image: pingcap/pd:latest
+    container_name: pd01
+    ports:
+      - "2489:2379"
+      - "2481:2380"
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      custom_network:
+        ipv4_address: 172.22.100.2
+    command:
+      - --client-urls=http://0.0.0.0:2379  # 让 pd 监听所有接口
+      - --peer-urls=http://0.0.0.0:2380    # 设置与其他 PD 节点的通信地址
+      - --advertise-client-urls=http://pd01:2379 # 向其他服务公开地址
+  
+
+  tidb:
+    image: pingcap/tidb:latest
+    container_name: tidb
+    ports:
+      - "4000:4000"
+    environment:
+      - TZ=Asia/Shanghai
+    command:
+      - --store=tikv
+      - --path=pd01:2379
+    depends_on:
+      - pd01
+      - tikv03
+    networks:
+      custom_network:
+        ipv4_address: 172.22.100.6
+
+  tikv01:
+    image: pingcap/tikv:latest
+    container_name: tikv01
+    ports:
+      - "20160:20160"
+      - "20180:20180"
+    command:
+      - --pd=http://pd01:2379
+      - --addr=172.22.100.3:20160 
+      - --status-addr=tikv01:20180 
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - pd01
+    networks:
+      custom_network:
+        ipv4_address: 172.22.100.3
+
+  tikv02:
+    image: pingcap/tikv:latest
+    container_name: tikv02
+    ports:
+      - "20161:20161"
+      - "20181:20181"
+    command:
+      - --pd=http://pd01:2379
+      - --addr=172.22.100.4:20161 
+      - --status-addr=tikv02:20181 
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - pd01
+      - tikv01
+    networks:
+      custom_network:
+        ipv4_address: 172.22.100.4
+
+  tikv03:
+    image: pingcap/tikv:latest
+    container_name: tikv03
+    ports:
+      - "20162:20162"
+      - "20182:20182"
+    command:
+      - --pd=http://pd01:2379
+      - --addr=172.22.100.5:20162 
+      - --status-addr=tikv03:20182 
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - pd01
+      - tikv02
+    networks:
+      custom_network:
+        ipv4_address: 172.22.100.5
+
+networks:
+  custom_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.22.0.0/16"

@@ -1,0 +1,40 @@
+services:
+  nginx:
+    image: duringbug/rag-nginx:v1.2  # 使用自定义的 Nginx 镜像
+    container_name: nginx01  # 容器名称
+    ports:
+      - "8888:80"  # 映射容器的 80 端口到本地的 8888 端口
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf  # 挂载本地 nginx 配置文件
+    # environment
+    # 必须在 nginx.conf 中设置后端实际的 host 和 port
+    depends_on:
+      - backend  # 确保 Nginx 服务在 backend 服务之后启动
+    networks:
+      - default  # 使用默认网络（不指定具体网络）
+
+  backend:
+    image: duringbug/rag-backend:v1.2  # 使用刚构建的后端镜像
+    container_name: backend01  # 后端容器名称
+    ports:
+      - "3333:3000"  # 映射后端服务端口
+    dns:
+      - 8.8.8.8  # Google DNS
+      - 8.8.4.4
+    environment:
+      VITE_COHERE_API_KEY: "b7yFJ4BbtxfPfBvlMVSlXvcn5CI5BDTouTnM7Hyv"
+      BACKEND_HOST: "backend01"
+      BACKEND_PORT: "3000"
+      
+      CLOUD_URL: "https://us-west-2.data.tidbcloud.com/api/v1beta/app/dataapp-ZWdBIPuZ/endpoint"
+      PUBLIC_KEY: "S1SL01S0"
+      PRIVATE_KEY: "54ed207b-1f0c-4ed2-9434-0b0e7b1dae59"
+      USE_TIDB_CLOUD: 1 # 1 代表使用已经创建好的tidb的云服务，否则需要自己配置tidb
+
+    networks:
+      - default  # 使用默认网络（不指定具体网络）
+
+# 默认网络配置，不需要自定义配置
+networks:
+  default:
+    driver: bridge
