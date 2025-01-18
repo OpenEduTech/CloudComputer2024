@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edu SumUp+</title>
+    <link rel="stylesheet" href="static/css/style_result.css">
+    <link rel="manifest" href="static/js/manifest.json">
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Edu SumUp+">
+<meta name="apple-mobile-web-app-title" content="Edu SumUp+">
+<meta name="theme-color" content="#1b63ab">
+<meta name="msapplication-navbutton-color" content="#1b63ab">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="msapplication-starturl" content="/">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="icon" type="image/png" href="static/images/logo.png">
+<link rel="apple-touch-icon" type="image/png" href="static/images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Kannada:wght@100..800&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Kannada:wght@100..800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Jersey+15&display=swap" rel="stylesheet">
+<script src="static/js/service_workers.js"> </script>
+
+
+
+
+</head>
+<body>
+<div id="particles-js"></div>
+    <header>
+        <h1>论文总结</h1>
+        <img src="static/images/logo512.png" width="20%" >
+    </header>
+
+
+    <main>
+        <section class="summary">
+          <h2>总结</h2>
+          <p>{{ summary }}</p>
+        </section>
+
+        <section class="publications">
+            <h2>相关文献</h2>
+            <br>
+        {% for publication in publications %}
+            <li class="publication-item">
+                    <a href="{{ publication.link }}" target="_blank">{{ publication.title }}</a>
+                    - {{ ', '.join(publication.authors) }} - {{ publication.publication_date }}
+            </li>
+        {% endfor %}
+
+        </section>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="static/js/app.js"></script>
+</body>
+<footer>
+    {% for keyword in keywords %}
+    <p class="keyword">{{ keyword }}</p>
+    {% endfor %}
+</footer>
+</html>
