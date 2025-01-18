@@ -1,0 +1,15 @@
+{
+    "name": "论文总结",
+    "start_url": "/",
+    "lang": "en-US",
+    "theme_color": "#1b63ab",
+    "display": "standalone",
+    "icons": [
+      {
+        "src": "logo512.png",
+        "type": "image/png",
+            "sizes": "512x512"
+
+      }
+    ]
+  }
